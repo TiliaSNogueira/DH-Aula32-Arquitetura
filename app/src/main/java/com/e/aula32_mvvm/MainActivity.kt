@@ -1,41 +1,87 @@
 package com.e.aula32_mvvm
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.lifecycle.Observer
-import kotlinx.android.synthetic.main.activity_main.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.Icon
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.setContent
+import androidx.lifecycle.LiveData
 
 class MainActivity : AppCompatActivity() {
 
-    //criou, falou otipo e que vai usar o viewModels()
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        setSupportActionBar(main_toolbar)
-
-        //quando clicar no refresh, o contador tem que zerar
-        main_toolbar.setNavigationOnClickListener {
-            //pega a função refresh que está dentro da viewModel
-            viewModel.refresh()
-            Toast.makeText(this, "Contador reiniciado", Toast.LENGTH_SHORT).show()
+        setContent {
+            MaterialTheme {
+                //passa a var soma do viewmodel
+                myApp(viewModel.soma)
+            }
         }
 
-
-        //viewModel paga a sua soma e, nesse lugar this, observa tal coisa
-        viewModel.soma.observe(this, Observer {
-            tvRes.text = it.toString()
-        })
-
-
-
-        fbIncrement.setOnClickListener {
-            //pega a função incremento que está dentro da viewMoldel
-            viewModel.incremento(1)
-        }
     }
+
+    //layout composto que vai dentro do Material Theme
+
+    //passa o viewmodel para dentro do myApp
+    @Composable
+    fun myApp(somaData: LiveData<Int>) {
+
+        //pega a var soma de dentro do MainViewModel
+        val soma by somaData.observeAsState()
+
+
+
+        //andaime
+        Scaffold(
+            topBar = {
+
+            },
+
+
+
+            bodyContent = {
+                //para dizer que o viewModel está escutando esse texto:
+                Column(
+                    modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+
+
+                ) {
+                    Text(soma.toString())
+                }
+
+
+            },
+
+
+            floatingActionButton = {
+                FloatingActionButton(onClick = {
+                    viewModel.incremento(1)
+                    Toast.makeText(this, "Botão clicado", Toast.LENGTH_SHORT).show()
+                }) {
+                    //não pega pelo R.id, pega o icone pelo nome dele a galeria de vector asset
+                    Icon(Icons.Filled.Add)
+                }
+            },
+        )
+    }
+
+
 }
